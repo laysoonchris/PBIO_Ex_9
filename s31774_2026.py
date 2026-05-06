@@ -73,9 +73,23 @@ def insert_name(sequence: str, name: str) -> str:
 
 # feature 1: batch mode
 
+def generate_batch(count: int, length: int, base_id: str,description: str, name: str, weights: Optional[dict], output_file: str,) -> None:
 
+    with open(output_file, "w", encoding="utf-8") as f:
+        for i in range(1, count + 1):
+            seq_id = f"{base_id}_{i:03d}"
+            seq = generate_sequence(length, weights)
+            seq_with_name = insert_name(seq, name)
+            record = format_fasta(seq_id, description, seq_with_name)
+            f.write(record)
+
+            stats = calculate_stats(seq)
+            print(f"[{i}/{count}] {seq_id}  GC={stats['GC']:.2f}%")
+
+    print(f"\nSaved {count} sequences into file: {output_file}")
 
 # feature 2: configurable nucleotide distribution
+
 
 
 
@@ -103,6 +117,33 @@ def save_gc_content_to_csv(gc_content_values: list, filename: str) -> None:
     print(f"GC results from sliding window saved to: {filename}")
 
 # feature 8: GC-content plot
+
+def plot_gc_plot(results: list, window_size: int, seq_id: str) -> str:
+    if not MATPLOTLIB_AVAILABLE:
+        print("Warning: matplotlib unavailable")
+        return ""
+    
+    positions = [r["start_position"] for r in results]
+    gc_values = [r["gc_content"] for r in results]
+    
+    fig, ax = plt.subplots(figsize=(12,4))
+    ax.plot(positions, gc_values, linewidth=0.8, color="#2196F3")
+    
+    mean_gc = sum(gc_values) / len(gc_values)
+    ax.axhline(mean_gc, color="F44336", linestyle="--", linewidth=1, label=f"Mean of GC: {mean_gc:.1f}%")
+    
+    ax.set_xlabel("Starting position of window (nt)")
+    ax.set_ylabel("GC-content (%)")
+    ax.set_title(f"GC-content – zipper (width={window_size} nt) | {seq_id}")
+    ax.set_ylim(0, 100)
+    ax.legend()
+    fig.tight_layout()
+    
+    output_path = f"{seq_id}_gc_plot.png"
+    fig.savefig(output_path, dpi=150)
+    plt.close(fig)
+    print(f"GC-content plot saved to: {output_path}")
+    return output_path
 
 
 def main():
