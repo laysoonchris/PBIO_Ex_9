@@ -130,7 +130,7 @@ def plot_gc_plot(results: list, window_size: int, seq_id: str) -> str:
     ax.plot(positions, gc_values, linewidth=0.8, color="#2196F3")
     
     mean_gc = sum(gc_values) / len(gc_values)
-    ax.axhline(mean_gc, color="F44336", linestyle="--", linewidth=1, label=f"Mean of GC: {mean_gc:.1f}%")
+    ax.axhline(mean_gc, color="#F44336", linestyle="--", linewidth=1, label=f"Mean of GC: {mean_gc:.1f}%")
     
     ax.set_xlabel("Starting position of window (nt)")
     ax.set_ylabel("GC-content (%)")
